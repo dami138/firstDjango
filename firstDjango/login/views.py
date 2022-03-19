@@ -27,23 +27,38 @@ class AppLogin(APIView):
 
 class RegistUser(APIView):
     def post(self, request):
-        # user_id = request.data.get("user_id","")
-        # user_pw = request.data.get("user_pw","")
-        # nickname = request.data.get("nickname", "")
-        # age = request.data.get("age", 20)
         serializer = LoginUserSerializer(request.data)
-
-        # if user_id 특수문자 숫자 한글,,, 처리 필요,,
 
         # 동일한 유저아이디가 있는지 검사
         if LoginUser.objects.filter(user_id=serializer.data['user_id']).exists():
             return Response(dict(msg="동일 아이디 있음"))
 
-        else:
-            user = serializer.create(request.data)
-
-            #비밀번호 암호화 코드 필요,,
-            # user_pw_encryted = make_password(user_pw)
-            # LoginUser.objects.create(user_id=user_id, user_pw=user_pw_encryted, nickname= nickname, age = age)
-
+        user = serializer.create(request.data)
         return Response(data = LoginUserSerializer(user).data)
+
+
+    #기존 코드
+# class RegistUser(APIView):
+#     def post(self, request):
+#         user_id = request.data.get('user_id', "")
+#         user_pw = request.data.get('user_pw', "")
+#         user_pw_crypted = make_password(user_pw)    # 암호화
+#
+#         if LoginUser.objects.filter(user_id=user_id).exists():
+#             # DB에 있는 값 출력할 때 어떻게 나오는지 보려고 user 객체에 담음
+#             user = LoginUser.objects.filter(user_id=user_id).first()
+#             data = dict(
+#                 msg="이미 존재하는 아이디입니다.",
+#                 user_id=user.user_id,
+#                 user_pw=user.user_pw
+#             )
+#             return Response(data)
+#
+#         LoginUser.objects.create(user_id=user_id, user_pw=user_pw_crypted)
+#
+#         data = dict(
+#             user_id=user_id,
+#             user_pw=user_pw_crypted
+#         )
+#
+#         return Response(data=data)
