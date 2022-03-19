@@ -36,7 +36,7 @@ class RegistUser(APIView):
         # if user_id 특수문자 숫자 한글,,, 처리 필요,,
 
         # 동일한 유저아이디가 있는지 검사
-        if LoginUser.LoginUser.objects.filter(user_id=serializer.data['user_id']).exists():
+        if LoginUser.objects.filter(user_id=serializer.data['user_id']).exists():
             return Response(dict(msg="동일 아이디 있음"))
 
         else:
