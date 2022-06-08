@@ -31,19 +31,43 @@ class Todo(APIView):
         context=dict(task_list=task_list)
         return render(request, 'todo/todo.html', context=context)
 
-#실습 2
+#실습 3
+
 
 class TaskSelect(APIView):
     def post(self, request):
-        tasks = Task.objects.all()
-        task_list = []
+        user_id = request.data.get('user_id', None)
+        page_number = request.data.get('page_number',None)
+        print(user_id,page_number)
 
+        if user_id and not "":
+            tasks = Task.objects.filter(user_id = user_id)
+        else:
+            tasks = Task.objects.all()
+
+        is_last_page = True
+
+        if page_number is not None and page_number >= 0:
+            if tasks.count() <= 10:
+                pass
+            elif tasks.count() <= (1+page_number) * 10:
+                tasks = tasks[page_number * 10:]
+            else:
+                is_last_page = False
+                tasks = tasks[page_number*10:(1+page_number)+10]
+        else:
+            pass
+
+
+        task_list= []
         for task in tasks:
             task_list.append(dict(id=task.id,
-                               name=task.task_name,
-                               state=task.state))
+                              name=task.task_name,
+                              user_id = user_id,
+                              state=task.state))
 
-        return Response(status=200, data=dict(tasks= task_list))
+        return Response(status=200, data=dict(tasks=task_list, isLastPage=is_last_page))
+
 
 class TaskCreate(APIView):
     def post(self, request):
@@ -51,9 +75,37 @@ class TaskCreate(APIView):
         todo_id = request.data.get("todo_id",None)
         todo_name = request.data.get("name","")
 
-        Task.objects.create(id = todo_id, user_id = user_id, task_name= todo_name)
+        if todo_id:
+            task = Task.objects.create(id = todo_id, user_id = user_id, task_name= todo_name)
+        else:
+            task = Task.objects.create(user_id = user_id, task_name = todo_name)
 
-        return Response()
+
+        return Response(data = dict(task.id))
+
+#실습 2
+#
+# class TaskSelect(APIView):
+#     def post(self, request):
+#         tasks = Task.objects.all()
+#         task_list = []
+#
+#         for task in tasks:
+#             task_list.append(dict(id=task.id,
+#                                name=task.task_name,
+#                                state=task.state))
+#
+#         return Response(status=200, data=dict(tasks= task_list))
+
+# class TaskCreate(APIView):
+#     def post(self, request):
+#         user_id = request.data.get("user_id",None)
+#         todo_id = request.data.get("todo_id",None)
+#         todo_name = request.data.get("name","")
+#
+#         Task.objects.create(id = todo_id, user_id = user_id, task_name= todo_name)
+#
+#         return Response()
 
 class TaskToggle(APIView):
     def post(self, request):
