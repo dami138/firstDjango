@@ -81,7 +81,7 @@ class TaskCreate(APIView):
             task = Task.objects.create(user_id = user_id, task_name = todo_name)
 
 
-        return Response(data = dict(task.id))
+        return Response(data = dict(id =task.id))
 
 #실습 2
 #
